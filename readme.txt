@@ -87,6 +87,8 @@ WPClef matches users to the WordPress accounts by matching email addresses. As l
 
 == Upgrade Notice ==
 
+We just upgraded to 1.3
+
 == Roadmap ==
 
 * Translation into other languages
