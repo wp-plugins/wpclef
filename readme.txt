@@ -8,7 +8,7 @@ Stable tag: 1.3
 License: MIT
 License URI: http://opensource.org/licenses/MIT
 
-Let users use Clef to log in and register for their WordPress accounts using their phone.
+Use Clef to log in and register for WordPress accounts using only your phone. Never remember a password again, get single sign on across all of your Wordpress sites and protect it all with 2-factor authentication.
 
 == Description ==
 
@@ -16,7 +16,9 @@ Let users use Clef to log in and register for their WordPress accounts using the
 
 Clef is the best single sign on solution for your Wordpress blogs. Once you sign in to one website using Clef, you are signed into every other Clef enabled site with a single click. If you have multiple Wordpress accounts, this means password-free, single sign on, 2-factor authentication for all of your Wordpress sites — give it a try today!
 
-Want to better understand how Clef works? Visit [getclef.com](https://getclef.com).
+Want to better understand how Clef works? Visit [getclef.com](https://getclef.com) or watch the video below.
+
+https://vimeo.com/61393630
 
 = Note =
 
