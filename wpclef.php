@@ -121,6 +121,8 @@ class WPClef {
 
 			$_SESSION['logged_in_at'] = time();
 
+			update_user_meta($existing_user->ID, 'clef_id', $clef_id);
+
 			if(self::setting( 'clef_settings_wants_password_reset' ) == 1) {
 				$new_password = sha1(rand());
 				wp_set_password($new_password, $existing_user->ID);

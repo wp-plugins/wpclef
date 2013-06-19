@@ -22,17 +22,17 @@ http://vimeo.com/61393630
 
 = Note =
 
-WPClef was originally created by [Dave Ross](http://davidmichaelross.com), but has since been contributed to by members of the Clef team. All trademarks, including the Clef logo, are the property of Clef.
+The Clef plugin was originally created by [Dave Ross](http://davidmichaelross.com), but has since been contributed to by members of the Clef team. All trademarks, including the Clef logo, are the property of Clef.
 
 == Installation ==
 
 = Installing the Plugin =
 
-Install WPClef automatically from your admin account by selecting "Plugins", then "Add new" from the sidebar menu. Search for WPClef, then choose "Install Now".
+Install Clef automatically from your admin account by selecting "Plugins", then "Add new" from the sidebar menu. Search for Clef, then choose "Install Now".
 
 or
 
-1. Download the latest WPClef archive from wordpress.org.
+1. Download the latest Clef archive from wordpress.org.
 1. Unzip the archive and upload the `wpclef` directory to the `/wp-content/plugins/` directory on your WordPress site.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
