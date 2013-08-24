@@ -40,13 +40,15 @@ class WPClefAdmin {
 
 		$pw_settings = $form->addSection('clef_password_settings', "Protect yourself from your password", "print_password_descript");
 		
-		$pw_settings->addField('disable_passwords', "I'm ready!", Settings_API_Util_Field::TYPE_CHECKBOX);
+		$pw_settings->addField('disable_passwords', "Disable password login for Clef users", Settings_API_Util_Field::TYPE_CHECKBOX);
 
 	}
 
 	public static function admin_enqueue_scripts($hook) {
-
-		if(array_shift(explode('/', $hook)) === 'settings_page_wpclef') {
+		$exploded_path = explode('/', $hook);
+		$settings_page_name = array_shift($exploded_path);
+		
+		if($settings_page_name === 'settings_page_wpclef') {
 			wp_register_style('wpclef_styles', plugin_dir_url(__FILE__) . '/clef.css', FALSE, '1.0.0');
 			wp_enqueue_style('wpclef_styles');
 
