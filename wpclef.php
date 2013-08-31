@@ -1,10 +1,9 @@
 <?php
-
 /*
 Plugin Name: Clef
 Plugin URI: http://wordpress.org/extend/plugins/wpclef
 Description: Clef lets you log in and register on your Wordpress site using only your phone — forget your usernames and passwords.
-Version: 1.5
+Version: 1.5.4
 Author: David Michael Ross
 Author URI: http://www.davidmichaelross.com/
 License: MIT
@@ -22,6 +21,8 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 **/
+
+if ( ! defined('ABSPATH') ) exit('restricted access');
 
 if ( !session_id() ) {
 	session_start();
@@ -52,7 +53,7 @@ class WPClef {
 
 	}
 
-	function init() {
+	public static function init() {
 
 		if ( isset( $_REQUEST['clef_callback'] ) && isset( $_REQUEST['code'] ) ) {
 
@@ -65,23 +66,35 @@ class WPClef {
 			);
 
 			$response = wp_remote_post( self::API_BASE . 'authorize', array( 'method'=> 'POST', 'body' => $args, 'timeout' => 20 ) ); 
-			$body = json_decode( $response['body'] );
-			$access_token = $body->access_token;
-			$_SESSION['wpclef_access_token'] = $access_token;
-			$success = $body->success;
 
-			if ( $success != 1 ) {
+			if ( is_wp_error($response)  ) {
+				$_SESSION['WPClef_Messages'][] = 'Error retrieving Clef user data.';
+				self::redirect_to_login();
+				return;
+			}
+
+			$body = json_decode( $response['body'] );
+
+			if ( !isset($body->success) || $body->success != 1 ) {
 				$_SESSION['WPClef_Messages'][] = 'Error retrieving Clef access token';
 				self::redirect_to_login();
 			}
 
+			$access_token = $body->access_token;
+			$_SESSION['wpclef_access_token'] = $access_token;
+
 			// Get info
 			$response = wp_remote_get( self::API_BASE . "info?access_token={$access_token}" );
+			if ( is_wp_error($response)  ) {
+				$_SESSION['WPClef_Messages'][] = 'Error retrieving Clef user data.';
+				self::redirect_to_login();
+				return;
+			}
 
 			$body = json_decode( $response['body'] );
 
-			if ( $success != 1 ) {
-				$_SESSION['WPClef_Messages'][] = 'Error retrieving Clef user data';
+			if ( !isset($body->success) || $body->success != 1 ) {
+				$_SESSION['WPClef_Messages'][] = 'Error retrieving Clef user data.';
 				self::redirect_to_login();
 			}
 
@@ -177,12 +190,17 @@ class WPClef {
 		exit();
 	}
 
-	public static function logged_out_check() {
+	public static function logged_out_check($redirect=true) {
 		// if the user is logged into WP but logged out with Clef, sign them out of Wordpress
 		if (is_user_logged_in() && isset($_SESSION['logged_in_at']) && $_SESSION['logged_in_at'] < get_user_meta(wp_get_current_user()->ID, "logged_out_at", true)) {
 			wp_logout();
-			self::redirect_to_login();
+			if ($redirect) {
+				self::redirect_to_login();
+			} else {
+				return true;
+			}
 		}
+		return false;
 	}
 
 	public static function disable_passwords($user) {
@@ -194,7 +212,17 @@ class WPClef {
 
 		return $user;
 	}
+
+	public static function hook_heartbeat($response, $data, $screen_id) {
+		$logged_out = self::logged_out_check(false);
+		if ($logged_out) {
+			$response['cleflogout'] = true;
+		}
+		return $response;
+	}
 }
+
+
 
 add_action( 'init', array( 'WPClef', 'init' ) );
 add_action( 'login_form', array( 'WPClef', 'login_form' ) );
@@ -202,4 +230,5 @@ add_action( 'login_message', array( 'WPClef', 'login_message' ) );
 add_action('init', array('WPClef', 'logout_handler'));
 add_action('init', array('WPClef', 'logged_out_check'));
 
+add_filter( 'heartbeat_received',  array("WPClef", "hook_heartbeat"), 10, 3);
 add_filter('wp_authenticate_user', array('WPClef', 'disable_passwords'));

@@ -26,6 +26,8 @@ class WPClefAdmin {
 		$values = $settings->settings->values;
 		if($values['clef_settings_app_id'] == '' ||
 			$values['clef_settings_app_secret'] == '') {
+			$site_name = urlencode(get_option('blogname'));
+			$site_domain = urlencode(get_option('siteurl'));
 			ob_start();
 			include dirname(__FILE__)."/keys_generation.tpl.php";
 			$form->introHTML = ob_get_clean();
@@ -40,25 +42,33 @@ class WPClefAdmin {
 
 		$pw_settings = $form->addSection('clef_password_settings', "Protect yourself from your password", "print_password_descript");
 		
-		$pw_settings->addField('disable_passwords', "I'm ready!", Settings_API_Util_Field::TYPE_CHECKBOX);
+		$pw_settings->addField('disable_passwords', "Disable password login for Clef users", Settings_API_Util_Field::TYPE_CHECKBOX);
 
 	}
 
 	public static function admin_enqueue_scripts($hook) {
 
-		if(array_shift(explode('/', $hook)) === 'settings_page_wpclef') {
-			wp_register_style('wpclef_styles', plugin_dir_url(__FILE__) . '/clef.css', FALSE, '1.0.0');
+		$exploded_path = explode('/', $hook);
+		$settings_page_name = array_shift($exploded_path);
+
+		// only register clef logout if user is a clef user
+		if (get_user_meta(wp_get_current_user()->ID, 'clef_id')) {
+			wp_register_script('wpclef_logout', plugins_url('wpclef/clef-heartbeat.js'), array('jquery'), '1.0', TRUE);
+			wp_enqueue_script('wpclef_logout');
+		}
+		
+		if($settings_page_name === 'settings_page_wpclef') {
+			wp_register_style('wpclef_styles', plugins_url('wpclef/clef.css'), FALSE, '1.0.0');
 			wp_enqueue_style('wpclef_styles');
 
-			wp_register_script('wpclef_keys', plugin_dir_url(__FILE__) . '/keys.js', array('jquery'), '1.0.0', TRUE );
-
+			wp_register_script('wpclef_keys', plugins_url('wpclef/keys.js'), array('jquery'), '1.0.0', TRUE );
 			wp_enqueue_script('wpclef_keys');
 		} else {
 			if(in_array('wpclef_configure', self::dismissed_wp_pointers())) {
 				return;
 			}
 
-			wp_register_script('wpclef_admin', plugin_dir_url(__FILE__) . '/admin_pointer.js', array('jquery', 'wp-pointer'), '1.0', TRUE );
+			wp_register_script('wpclef_admin', plugins_url('wpclef/admin_pointer.js'), array('jquery', 'wp-pointer'), '1.0', TRUE );
 
 			wp_enqueue_script('wp-pointer');
 			wp_enqueue_style('wp-pointer');
@@ -68,16 +78,13 @@ class WPClefAdmin {
 
 	}
 
-
 	public static function admin_menu() {
-		add_options_page("Clef", __('Clef', 'wpclef'), 'manage_options', __FILE__, array('WPClefAdmin', 'plugin_options'));
+		add_options_page("Clef", __('Clef', 'wpclef'), 'manage_options', 'wpclef', array('WPClefAdmin', 'plugin_options'));
 	}
 
 	public static function plugin_options() {
-
 		$form = Settings_API_Util::forID('clef');
 		$form->renderBasicForm('Clef Settings', Settings_API_Util::ICON_SETTINGS);
-
 	}
 
 	public static function update_option_wpclef() {
