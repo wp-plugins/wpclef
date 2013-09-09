@@ -3,8 +3,8 @@ Contributors: csixty4, jessepollak, zrathustra
 Donate link: http://www.giffordcatshelter.org
 Tags: login, authentication, identity, security, clef, wave, iphone, android
 Requires at least: 3.5
-Tested up to: 3.5.1
-Stable tag: 1.5
+Tested up to: 3.6
+Stable tag: 1.6
 License: MIT
 License URI: http://opensource.org/licenses/MIT
 
@@ -70,6 +70,26 @@ The Clef plugin matches users to the WordPress accounts by matching email addres
 4. A correctly configured settings page for Clef.
 
 == Changelog ==
+
+= 1.6 =
+
+* adds ability to connect any Clef account to any WordPress account, removing restriction of matching emails on Clef and WordPress accounts
+
+= 1.5.4 =
+
+* various bug fixes
+* better error messages
+* fixes FPD
+
+= 1.5.3 =
+
+* Adds javascript logout through heartbeat API
+
+= 1.5.2 =
+
+* Autofills setup variables
+* Changes tested compatibility version
+* Various bug fixes
 
 = 1.5 =
 * Update to the optional security feature: instead of changing users' passwords every time they sign in, usernames and passwords are entirely disabled for accounts using Clef
